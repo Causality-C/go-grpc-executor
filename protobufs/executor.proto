@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package executor;
+option go_package = "gen/executor;executor";
+
+service JobService {
+    rpc ExecutorJob(ExecutorJobRequest) returns (stream ExecutorJobResponse);
+    rpc Heartbeat(stream HeartbeatRequest) returns (stream HeartbeatResponse);
+    rpc UploadFile(stream STLFileUploadRequest) returns (STLFileUploadResponse);
+    rpc DownloadImage(ImageFileDownloadRequest) returns (stream ImageFileChunk);
+    rpc EnqueueJob(EnqueueJobRequest) returns (EnqueueJobResponse);
+    rpc MarkJobComplete(MarkJobCompleteRequest) returns (MarkJobCompleteResponse);
+}
+
+message MarkJobCompleteRequest{
+    int32 task_id = 1;
+}
+message MarkJobCompleteResponse{
+    bool status = 1;
+}
+
+message HeartbeatRequest {
+    string client_id = 1;
+}
+
+message HeartbeatResponse {
+    string status = 1;
+}
+
+// API calls this to add jobs to the queue
+message EnqueueJobRequest {
+    int32 task_id = 1;
+    int32 order_size = 2;
+    string product = 3;
+    string filename = 4;
+    string output_path = 5;
+    int32 user_id = 6;
+    string text = 7; // Text printed to bust
+}
+
+message EnqueueJobResponse {
+    bool status = 1;
+}
+
+message ExecutorJobRequest {
+    oneof request_type {
+        // Client will initiate a handshake with the server
+        HandshakeRequest handshake_type = 1;
+        // Client will respond when they are done with a job
+        ExecuteTaskResponse execute_type = 2;
+    }
+}
+
+message ExecutorJobResponse {
+    oneof response_type {
+        // Server ack
+        HandshakeResponse handshake_type = 1;
+
+        // Server will send this to the client to initiate requests
+        ExecuteTaskRequest execute_type = 2;
+    }
+}
+
+// Handshake between client and server
+message HandshakeRequest{
+}
+message HandshakeResponse{
+    string client_id = 1;
+}
+
+// Execute Tasks 
+message ExecuteTaskRequest {
+    int32 task_id = 1;
+    int32 order_size = 2;
+    string product = 3;
+    string filename = 4;
+    string output_path = 5;
+    int32 user_id = 6;
+    string text = 7; // Text printed to bust
+}
+message ExecuteTaskResponse {
+}
+
+// Image File Download(s)
+message ImageFileDownloadRequest{
+    string filename = 1;
+}
+message ImageFileChunk{
+    bytes contents = 2;
+}
+
+// STL File Upload(s)
+message STLFileUploadRequest {
+    oneof request_type{
+        string filename = 1;
+        bytes contents = 2;
+    }
+    optional int32 task_id = 3;
+}
+message STLFileUploadResponse {
+    bool status = 1;
+}
