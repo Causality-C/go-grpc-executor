@@ -34,6 +34,7 @@ func ensureDir(path string) error {
 	if !info.IsDir() {
 		return fmt.Errorf("%s exists but is not a directory", path)
 	}
+	fmt.Println("Initializing server with asset folder:", path)
 	return nil
 }
 
