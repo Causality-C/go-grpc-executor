@@ -1,19 +1,34 @@
 package main
 
 import (
-	"fmt"
+	svc "executor/internal/server"
+	"log"
+	"net"
 
-	service "executor/internal/server"
+	pb "executor/gen/executor"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
-	fmt.Println("Hello, World!")
-	// lis, err := net.Listen("tcp", ":50051")
-	// if err != nil {
-	// 	log.Fatalf("Failed to listen: %v", err)
-	// }
-	// grpcServer := grpc.NewServer()
-	jobServer := &service.JobServiceServer{}
-	var val string = jobServer.Stupid()
-	fmt.Println(val)
+	// Create TCP Listener
+	listener, err := net.Listen("tcp", ":50051")
+
+	if err != nil {
+		log.Fatalf("Failed to listen %v\n", err)
+	}
+
+	grpcServer := grpc.NewServer()
+	server, err := svc.NewJobServiceServer(svc.DefaultAssetFolder)
+	if err != nil {
+		log.Fatalf("Failed to initialize server %v\n", err)
+	}
+	log.Println("Starting gRPC server on port 50051")
+	pb.RegisterJobServiceServer(grpcServer, server)
+	reflection.Register(grpcServer)
+
+	if err := grpcServer.Serve(listener); err != nil {
+		log.Fatalf("Failed to serve: %v", err)
+	}
 }

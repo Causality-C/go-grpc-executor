@@ -1,7 +1,7 @@
 package queue
 
 import (
-	ej "executor/internal/executorJob"
+	ej "executor/internal/executorjob"
 	"testing"
 )
 
@@ -19,7 +19,7 @@ func TestQueue(t *testing.T) {
 	if !ok {
 		t.Errorf("Queue should not be empty")
 	}
-	if item.TaskId != 0 {
-		t.Errorf("TaskId should be 0")
+	if item.TaskID != 0 {
+		t.Errorf("TaskID should be 0")
 	}
 }

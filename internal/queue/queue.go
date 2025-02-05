@@ -1,7 +1,7 @@
 package queue
 
 import (
-	ej "executor/internal/executorJob"
+	ej "executor/internal/executorjob"
 	"sync"
 )
 
